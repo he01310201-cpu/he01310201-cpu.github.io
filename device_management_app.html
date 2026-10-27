@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f5f8fc">
+<title>裝置管理｜Device Care</title>
+<style>
+:root{--bg:#f4f7fb;--card:#fff;--ink:#14233b;--muted:#71829c;--line:#e5edf7;--blue:#287cff;--green:#20b985;--orange:#ff805f;--purple:#9254ed}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(145deg,#eaf1f9,#f7f9fc 40%,#edf3fa);font-family:system-ui,-apple-system,"Noto Sans TC",sans-serif;color:var(--ink)}
+.app{width:min(100%,520px);min-height:100dvh;margin:auto;background:rgba(255,255,255,.72);padding:env(safe-area-inset-top) 18px calc(92px + env(safe-area-inset-bottom));box-shadow:0 0 55px #18365a0b}
+.status{display:flex;justify-content:space-between;align-items:center;padding:12px 4px 22px;font-size:14px;font-weight:700}.status-right{display:flex;gap:8px;align-items:center}
+.top{display:flex;justify-content:space-between;align-items:center;margin:0 4px 22px}.top h1{font-size:29px;letter-spacing:.02em;margin:0 0 5px}.top p{margin:0;color:var(--muted);font-size:14px}.icon-btn{border:0;background:transparent;font-size:25px;color:var(--ink);padding:8px;cursor:pointer}
+.device{display:flex;align-items:center;gap:14px;background:#eaf3ff;border-radius:22px;padding:18px;margin-bottom:16px}.phone-icon{width:42px;height:56px;border:3px solid #243a56;border-radius:10px;display:grid;place-items:center;font-size:20px;background:#fff;flex-shrink:0}.device-info{flex:1}.device-info strong{display:block;font-size:18px}.device-info small{color:#607694}.badge{background:#d7f7ed;color:#087c58;border-radius:30px;padding:8px 11px;font-size:12px;white-space:nowrap}.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#12a876;margin-right:6px}
+.metrics{display:grid;grid-template-columns:1fr 1fr;gap:12px}.metric{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:16px 14px 17px;min-width:0;box-shadow:0 5px 20px #173b6304}.metric-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}.bubble{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-size:22px;flex-shrink:0}.temperature .bubble{background:#ffebe5;color:#f45135}.cpu .bubble{background:#e5efff;color:#287cff}.gpu .bubble{background:#f0e7ff;color:#8951e8}.storage .bubble{background:#def8ee;color:#129d6a}.label{font-size:13px;color:#425775}.value{font-size:28px;font-weight:750;letter-spacing:-.04em;line-height:1.25}.sub{font-size:12px;color:var(--muted);margin-top:4px;min-height:18px;white-space:nowrap}.track{height:8px;background:#eaf0f7;border-radius:99px;margin-top:14px;overflow:hidden}.fill{height:100%;border-radius:99px;transition:width .5s}.temperature .fill{background:var(--orange)}.cpu .fill{background:var(--blue)}.gpu .fill{background:var(--purple)}.storage .fill{background:var(--green)}
+.panel{background:#fff;border:1px solid var(--line);border-radius:20px;padding:17px 16px;margin-top:16px}.panel-title{font-size:17px;font-weight:750;margin:0 0 10px}.row{display:flex;align-items:center;gap:12px;padding:12px 2px;border-bottom:1px solid #edf2f8;font-size:14px}.row:last-child{border-bottom:0;padding-bottom:2px}.row-icon{width:24px;text-align:center;color:#4f6685;font-size:19px}.row-label{flex:1;color:#425775}.row-value{color:#344b6a;font-weight:600;text-align:right}
+.quick{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.action{border:1px solid #e7eef8;background:#f7faff;border-radius:15px;padding:13px 4px 11px;color:#344b6a;cursor:pointer;font:inherit;font-size:12px;min-width:0;transition:.15s}.action:active{transform:scale(.97);background:#eaf3ff}.action .emoji{display:block;font-size:22px;margin-bottom:8px}
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(100%,520px);display:flex;justify-content:space-around;background:#ffffffed;backdrop-filter:blur(14px);border-top:1px solid var(--line);padding:10px 8px calc(10px + env(safe-area-inset-bottom));z-index:5}.nav button{border:0;background:transparent;color:#71829c;font:inherit;font-size:11px;cursor:pointer;min-width:55px}.nav .nav-icon{display:block;font-size:21px;margin-bottom:3px}.nav button.active{color:var(--blue);font-weight:750}
+.toast{position:fixed;bottom:86px;left:50%;transform:translateX(-50%);background:#172b46;color:white;padding:11px 16px;border-radius:12px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:10;white-space:nowrap}.toast.show{opacity:1}
+.note{font-size:11px;color:#8b9ab0;text-align:center;margin-top:12px}
+@media(max-width:360px){.app{padding-left:12px;padding-right:12px}.metric{padding:12px 10px}.bubble{width:36px;height:36px;font-size:18px}.value{font-size:25px}.sub{font-size:10px}.quick{gap:5px}}
+</style>
+</head>
+<body>
+<main class="app">
+  <div class="status"><span id="clock">09:41</span><span class="status-right">▮▮▮　◉　▰ <span id="battery">92%</span></span></div>
+  <header class="top"><div><h1>裝置管理</h1><p>掌握裝置狀態，讓效能更穩定</p></div><button class="icon-btn" aria-label="設定" onclick="showToast('設定功能示範')">⚙</button></header>
+  <section class="device"><div class="phone-icon">▯</div><div class="device-info"><strong>我的手機</strong><small>Android 裝置</small></div><div class="badge"><span class="dot"></span>正常運作</div></section>
+  <section class="metrics" aria-label="裝置狀態">
+    <article class="metric temperature"><div class="metric-head"><div class="bubble">♨</div><div><div class="label">機身溫度</div><div class="value" id="temp">36°C</div><div class="sub" id="tempState">溫度正常</div></div></div><div class="track"><div class="fill" id="tempBar" style="width:45%"></div></div></article>
+    <article class="metric cpu"><div class="metric-head"><div class="bubble">▦</div><div><div class="label">CPU 使用率</div><div class="value" id="cpu">32%</div><div class="sub">處理器負載</div></div></div><div class="track"><div class="fill" id="cpuBar" style="width:32%"></div></div></article>
+    <article class="metric gpu"><div class="metric-head"><div class="bubble">▣</div><div><div class="label">GPU 使用率</div><div class="value" id="gpu">28%</div><div class="sub">圖形處理負載</div></div></div><div class="track"><div class="fill" id="gpuBar" style="width:28%"></div></div></article>
+    <article class="metric storage"><div class="metric-head"><div class="bubble">▤</div><div><div class="label">儲存空間</div><div class="value" id="storage">64%</div><div class="sub" id="storageSub">剩餘 46.2 GB / 128 GB</div></div></div><div class="track"><div class="fill" id="storageBar" style="width:64%"></div></div></article>
+  </section>
+  <section class="panel"><h2 class="panel-title">詳細資訊　›</h2>
+    <div class="row"><span class="row-icon">♨</span><span class="row-label">電池溫度</span><span class="row-value">32°C　›</span></div>
+    <div class="row"><span class="row-icon">▣</span><span class="row-label">電池電量</span><span class="row-value" id="batteryDetail">92%　›</span></div>
+    <div class="row"><span class="row-icon">⌁</span><span class="row-label">網路狀態</span><span class="row-value">Wi-Fi 連線中　›</span></div>
+    <div class="row"><span class="row-icon">▦</span><span class="row-label">記憶體使用率</span><span class="row-value">56%（4.5 GB / 8 GB）　›</span></div>
+  </section>
+  <section class="panel"><h2 class="panel-title">快速操作</h2><div class="quick">
+    <button class="action" onclick="showToast('清理完成：示範介面不會真的刪除檔案')"><span class="emoji">🧹</span>清理記憶體</button>
+    <button class="action" onclick="performanceMode()"><span class="emoji">🚀</span>效能模式</button>
+    <button class="action" onclick="coolMode()"><span class="emoji">❄</span>降溫模式</button>
+    <button class="action" onclick="powerMode()"><span class="emoji">🔋</span>省電模式</button>
+  </div></section>
+  <p class="note">示範介面 · 數值為模擬資料，並非手機硬體即時讀數</p>
+</main>
+<nav class="nav"><button class="active" onclick="navTo(this,'首頁')"><span class="nav-icon">⌂</span>首頁</button><button onclick="navTo(this,'效能')"><span class="nav-icon">▥</span>效能</button><button onclick="navTo(this,'應用程式')"><span class="nav-icon">▦</span>應用程式</button><button onclick="navTo(this,'設定')"><span class="nav-icon">♙</span>設定</button></nav>
+<div class="toast" id="toast" role="status"></div>
+<script>
+function showToast(message){const t=document.getElementById('toast');t.textContent=message;t.classList.add('show');clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>t.classList.remove('show'),2600)}
+function navTo(btn,name){document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');if(name!=='首頁')showToast(name+'頁面：目前為介面示範')}
+function performanceMode(){showToast('效能模式已切換（示範）');document.getElementById('cpu').textContent='45%';document.getElementById('cpuBar').style.width='45%'}
+function coolMode(){document.getElementById('temp').textContent='34°C';document.getElementById('tempBar').style.width='35%';document.getElementById('tempState').textContent='降溫模式示範';showToast('已啟用降溫模式（模擬）')}
+function powerMode(){document.getElementById('cpu').textContent='18%';document.getElementById('cpuBar').style.width='18%';document.getElementById('gpu').textContent='12%';document.getElementById('gpuBar').style.width='12%';showToast('省電模式已啟用（模擬）')}
+function updateClock(){const d=new Date();document.getElementById('clock').textContent=d.toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit',hour12:false})}updateClock();setInterval(updateClock,30000);
+</script>
+</body>
+</html>
